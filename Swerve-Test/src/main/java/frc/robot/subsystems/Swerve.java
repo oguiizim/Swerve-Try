@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Dimensoes;
@@ -15,6 +14,7 @@ import frc.robot.Constants.Tracao;
 import frc.robot.commands.ConfigAuto;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
+import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -73,8 +73,18 @@ public class Swerve extends SubsystemBase {
                 getHeading().getRadians());
     }
 
-    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput) {
-        return swerveDrive.swerveController.getTargetSpeeds(xInput, yInput, 0, 0, 0);
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d heading) {
+        Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
+
+        return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
+                scaledInputs.getY(),
+                heading.getRadians(),
+                getHeading().getRadians(),
+                Tracao.MAX_SPEED);
+    }
+
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double maxSpeed) {
+        return swerveDrive.swerveController.getTargetSpeeds(xInput, yInput, 0, 0, 0, maxSpeed);
     }
 
     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {

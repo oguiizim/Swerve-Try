@@ -5,7 +5,6 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -14,16 +13,17 @@ import frc.robot.subsystems.Swerve;
 import swervelib.SwerveController;
 import swervelib.math.SwerveMath;
 
-public class DriveCommand extends Command {
+public class SlowDrive extends Command {
      private final Swerve swerve;
      private final DoubleSupplier vX, vY, heading;
      private boolean initRotation = false;
      private SwerveController controller;
-     double velocity;
+     // private int velocity = 0;
 
-     XboxController control = new XboxController(0);
+     CommandXboxController control = new CommandXboxController(0);
+     // private double speed;
 
-     public DriveCommand(Swerve swerve, DoubleSupplier vY, DoubleSupplier vX, DoubleSupplier heading) {
+     public SlowDrive(Swerve swerve, DoubleSupplier vY, DoubleSupplier vX, DoubleSupplier heading) {
           this.swerve = swerve;
           this.vX = vX;
           this.vY = vY;
@@ -40,19 +40,12 @@ public class DriveCommand extends Command {
           initRotation = true;
      }
 
-     private double setMax() {
-          if (control.getRawButton(1)) {
-               return velocity = 1.5;
-          } else {
-               return velocity = 4.0;
-          }
-     }
-
      @Override
      public void execute() {
           double angle = heading.getAsDouble() * 0.8;
 
-          ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(), setMax());
+          ChassisSpeeds desiredSpeeds = swerve.getTargetSpeeds(vX.getAsDouble(), vY.getAsDouble(), 1.5);
+
           // Limit velocity to prevent tippy
           Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
           translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
@@ -60,7 +53,6 @@ public class DriveCommand extends Command {
                     swerve.getSwerveDriveConfiguration());
           SmartDashboard.putNumber("LimitedTranslation", translation.getX());
           SmartDashboard.putString("Translation", translation.toString());
-          SmartDashboard.putNumber("VelocityMax", setMax());
           double rotation = controller.config.maxAngularVelocity * angle;
 
           swerve.drive(translation, rotation);

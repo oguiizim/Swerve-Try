@@ -111,7 +111,7 @@ public final class Constants {
 
     public static final double TURN_CONSTANT = 0.75;
 
-    public static final double MAX_SPEED = 4.0;
+    public static double MAX_SPEED = 4.0;
 
     public static final double dt = 0.02;
 
